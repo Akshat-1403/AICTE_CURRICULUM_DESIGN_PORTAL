@@ -1,19 +1,26 @@
 const express = require("express");
 const router = express.Router();
 const courseController = require('../controllers/courseController')
+const authController = require('../controllers/authController')
+const userController = require('../controllers/userController')
 
-router.get("/",courseController.getAllCourses) // wiht search functionality 
-router.get("/:commonId", courseController.getCourse)
-router.get("/basic-info/:commonId", courseController.getBasicInfo)
-router.get("/categories/:commonId", courseController.getCategory)
-router.get("/semesters/:commonId", courseController.getSemester)
-router.get("/subjects/:commonId", courseController.getSubjects)
-// router.route("/course").get()
-// router.route("/:commonId/designers")
-//     .get()
-//     .post()
-//     .patch()
-//     .delete()
+router.get("/",
+    courseController.getAllCourses) // wiht search functionality 
 
+const onIdRouter = express.Router({mergeParams:true})
+
+router.use("/:commonId",authController.protect, onIdRouter)
+
+onIdRouter
+    .get("/",courseController.getCourse)
+    .get("/basic-info", courseController.getBasicInfo)
+    .get("/categories", courseController.getCategory)
+    .get("/semesters", courseController.getSemester)
+    .get("/subjects", courseController.getSubjects)
+    .patch("/update-by-user/", courseController.updateByUser)
+    .patch("/accept-updates/:commonId", courseController.acceptUpdates)
+    .get("/users", userController.getCourseUser)
+    .patch("/users", userController.addCourseUser)
+    .delete("/users", userController.deleteCourseUser)
 
 module.exports = router;

@@ -3,17 +3,6 @@ const bcrypt = require("bcrypt")
 const crypto = require('crypto')
 
 const userSchema = new mongoose.Schema({
-    userId:{
-        type:String,
-        require:[true,"User's id is Missing"],
-        unique:[true,"User with same id already exists"],
-        // validate: {
-        //     validator: function(value) {
-        //       return 
-        //     },
-        //     message: 'Username must only contain letters, numbers, and underscores.'
-        //   }
-    },
     password:{
         type:String,
         require:[true,'User password is missing'],
@@ -40,20 +29,22 @@ const userSchema = new mongoose.Schema({
         // require:[true,"User's gender is Missing"]
     },
     dob:Date,
-    // profileImgUrl:
+    profileImgUrl:String,
 
     areaOfSpecialization:[String],
-    adminIn:[{
-        type:mongoose.SchemaTypes.ObjectId,
-        ref:"course"
-    }],
-    editorIn:[{
-        type:mongoose.SchemaTypes.ObjectId,
-        ref:"course"
-    }],
-    viewerIn:[{
-        type:mongoose.SchemaTypes.ObjectId,
-        ref:"course"
+    courses:[{
+        type:{
+            id:{
+                type:mongoose.SchemaTypes.ObjectId,
+                ref:"course"
+            },
+            access:{
+                type:String,
+                enum:["head","edit","view"]
+            }
+        },
+        unique:[true, "user already enrolled"],
+        _id:false
     }],
     passwordChangedAt:{
         type:Date,
@@ -74,9 +65,8 @@ const userSchema = new mongoose.Schema({
 
 
 //Indexes
-userSchema.index("userId",{
-    unique:true
-})
+
+
 userSchema.pre(/^find/,async function (next){
     //this refers to the query here
     this.find({ active: {$ne:false} })

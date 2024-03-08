@@ -40,7 +40,7 @@ app.use(hpp({
 
 //Limit the number of requests from 1 IP address
 const limiter = rateLimit({
-    max:100,    //Max numbers of request can be made by same IP
+    max:1000,    //Max numbers of request can be made by same IP
     windowMs: 1000*60*60, //time period (in ms) for limiting the request
     message:"Too much request from this IP please try again later"
 })
@@ -51,7 +51,6 @@ app.use('/api',limiter)
 
 // Importing Routes
 const feedbackRouter = require("./routes/feedbackRoute");
-const pushRouter = require('./routes/pushRoutes');
 const commitRouter = require('./routes/commitRoute');
 const otherCurriculumRouter = require("./routes/otherCurriculumsRoute");
 const courseRouter = require("./routes/courseRoute");
@@ -60,14 +59,20 @@ const userRouter = require('./routes/userRoute')
 const authRouter = require('./routes/authRoute')
 const subjectRouter = require('./routes/subjectRoute')
 
+const authController = require('./controllers/authController')
+
 // APIs
 app.use("/api/v1/feedback", feedbackRouter);
-app.use('/api/v1/push',pushRouter);
-app.use('/api/v1/commit',commitRouter);
+app.use('/api/v1/commit',
+    authController.protect,
+    commitRouter);
 app.use('/api/v1/explore', otherCurriculumRouter)
 app.use('/api/v1/courses',courseRouter)
 app.use('/api/v1/resources',resourceRouter)
-app.use('/api/v1/users', userRouter)
+app.use('/api/v1/users', 
+    authController.protect, 
+    authController.restrictTo("administrator") ,
+    userRouter)
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/subjects',subjectRouter)
 

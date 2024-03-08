@@ -25,6 +25,7 @@ export default function CategoriesPage() {
         setCategories(convertIntoArray(res.data.categories, keyOrder))
       }
     });
+  // eslint-disable-next-line
   },[])
 
   if(!categories) return <></>
@@ -37,7 +38,7 @@ export default function CategoriesPage() {
             <CardWrapper classNames="m-8 p-6 pt-2">
               <header className="mx-2 flex justify-between">
                 <h1 className="inline text-3xl">
-                  {`${index}.`}
+                  {`${index + 1}.`}
                 </h1>
                 <h1 className="inline text-xl">
                   {category.title}
@@ -71,12 +72,11 @@ export default function CategoriesPage() {
 }
 
 const convertIntoArray = (obj, head)=>{
-  const keys = Object.keys(obj);
   const arr = [];
-  for(let k of keys) {
+  for(let key in obj) {
     arr.push({
-      title: k,
-      subjects: obj[k],
+      title: key,
+      subjects: obj[key],
     })
   }
   // if(head) arr.unshift({subjects: head});
