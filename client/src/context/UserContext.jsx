@@ -10,7 +10,7 @@ import {
 } from "./UserAction"
 
 const initialState = {
-    loading: false,
+    loading: true,
     user: null,
 };
 
@@ -25,7 +25,6 @@ export const UserProvider = ({children})=>{
         (response)=>{
             return response;
         }, (err)=>{
-            console.log("response interceptor ",err);
             if(err.response.status >= 401){
                 // logoutUser();
             }
@@ -50,7 +49,9 @@ export const UserProvider = ({children})=>{
         }
         setLoading(false)
     }
+
     useEffect(()=>{
+        setLoading(false);
         getCurrUser();
     // eslint-disable-next-line
     }, [])
@@ -71,16 +72,16 @@ export const UserProvider = ({children})=>{
                 type:ALERT,
                 payload:"Invalid Credentials while login"
             })
-        }finally{
+        } finally{
             setLoading(false)
         }
     }
     const sendAdminOTP = async ({email})=>{
-        if(!email || email === "") {
-            return null;
-        }
         setLoading(true)
         try{
+            if(!email || email === "") {
+                throw new Error("Enter Valid email")
+            }
             await axiosInstance.post("auth/send-otp", {email});
         } catch (err){
             dispatch({
@@ -95,7 +96,7 @@ export const UserProvider = ({children})=>{
     const setupAdminPassword = async ({name, password})=>{
         setLoading(true);
         try{
-            const res = await axiosInstance("auth/set-up-admin", {name, password});
+            await axiosInstance("auth/set-up-admin", {name, password});
             dispatch({
                 type: SETUP_USER,
                 payload: {

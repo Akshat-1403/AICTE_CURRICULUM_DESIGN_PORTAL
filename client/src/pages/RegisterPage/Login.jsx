@@ -20,6 +20,16 @@ export default function Login() {
   
   const onSubmit = async (e)=>{
     e.preventDefault();
+    if(!localState.email || !localState.password) {
+      alert("Please enter all details!");
+      return;
+    }
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if(!emailRegex.test(localState.email)) {
+      alert("Email is not in correct format!");
+      return;
+    }
+    
     await login(localState)
     //if login failed - handled in userContext
     navigate('/')
@@ -50,7 +60,13 @@ export default function Login() {
           />
         </div>
         <button type="submit" disabled={loading} className={`bg-secondary-400 my-4 p-4 py-2 rounded-lg ${loading &&"bg-opacity-50"}`} onClick={onSubmit}>
-            Login
+          {
+            loading 
+            ?
+            "Loading..."
+            :
+            "Login"
+          }
         </button>
       </form>
   )

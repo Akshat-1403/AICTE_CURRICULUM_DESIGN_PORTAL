@@ -2,6 +2,7 @@ import {
     HANDLE_COURSE_CHANGE,
     HANDLE_SUBJECT_CHANGE,
     GET_COURSE,
+    GET_ALL_SUBJECTS,
 } from "./CourseAction";
 
 export default function reducer(state, action) {
@@ -11,20 +12,12 @@ export default function reducer(state, action) {
             ...action.payload.course,
         }
     }
-    if(action.type === HANDLE_COURSE_CHANGE) {
+    else if(action.type === GET_ALL_SUBJECTS){
         return {
             ...state,
-            [action.payload.name]: action.payload.value,
+            "allSubjects":action.payload
         }
     }
-    if(action.type === HANDLE_SUBJECT_CHANGE) {
-        return {
-            ...state,
-            [action.payload.subjectId]: {
-                ...action.payload.subjectId,
-                [action.payload.name]: action.payload.value,
-            }
-        }
-    }
+    
     throw new Error("No Such action exists");
 }

@@ -1,9 +1,10 @@
 import React, { useReducer, useContext } from "react";
 
 import {
-    HANDLE_COURSE_CHANGE,
-    HANDLE_SUBJECT_CHANGE,
+    // HANDLE_COURSE_CHANGE,
+    // HANDLE_SUBJECT_CHANGE,
     GET_COURSE,
+    GET_ALL_SUBJECTS,
 } from "./CourseAction";
 
 import reducer from "./CourseReducer";
@@ -20,16 +21,22 @@ export const CourseProvider = ({children})=>{
     });
 
     const getCourse = async (courseId)=>{
-        if(!courseId || courseId==="") return {};
+        if(!courseId || courseId==="") return undefined;
         const url = `courses/${courseId}`;
-        const response = await axiosInstance.get(url);
-        if(response.status === 200) {
-            dispatch({
-                type: GET_COURSE,
-                payload: {course: response.data.data}
-            });
+        let response = undefined;
+        try {
+            response = await axiosInstance.get(url);
+            if(response.status === 200) {
+                dispatch({
+                    type: GET_COURSE,
+                    payload: {course: response.data.data}
+                });
+            }
+        } catch(err) {
+            // Handle Error
+            console.log("ERROR while executing getCourse() in CourseContext.jsx\n", err);
         }
-        return state.subjects
+        return response.data;
     }
 
     const getCategoriesWiseSub = async(courseId)=>{
@@ -43,59 +50,66 @@ export const CourseProvider = ({children})=>{
             }
             return res.data
         } catch(err) {
-            alert("Cannot make Request");
+            alert("Something went wrong!");
             return null;
         }
     }
 
     const getAllSubjects = async (courseId)=>{
+        let res = null;
         try{
             const url = `courses/${courseId}/subjects`;
-            const res = await axiosInstance.get(url);
-
-            if(res && res.status === 200) {
-                return res.data;
+            res = await axiosInstance.get(url);
+            
+            if(res.status !== 200) {
+                res = null;
             }
-            return null;
+
+            dispatch({
+                type:GET_ALL_SUBJECTS,
+                payload:res.data.data
+            })
         } catch(err) {
             alert("Cannot Get Server");
-            return null;
         }
+        return res;
     }
 
     const getSemestersWiseSub = async (courseId)=>{
+        let res = null;
         try{
             const url = `courses/${courseId}/semesters`;
-            console.log(url);
-            const res = await axiosInstance.get(url);
+            res = await axiosInstance.get(url);
             if(res.status !== 200) {
-                alert("Cannot make Request");
-                return null;
+                alert("Cannot make request!");
+                res = null;
             }
-            return res.data;
         } catch(err) {
-            alert("Cannot make Request");
-            return null;
+            alert("Something went wrong!");
         }
+        return (!res || !res?.data)? res : res.data;
     }
-    const handleChange = (name, value, subjectId) => {
-        if(subjectId && subjectId !== "") {
-            dispatch({
-                type: HANDLE_SUBJECT_CHANGE,
-                payload: {name, value, subjectId},
+
+    const updateProperty = async (name, value, courseId)=>{
+        let res = null;
+        const url = `courses/${courseId}/update-by-user`;
+        try {
+            res = await axiosInstance.patch(url, {
+                prop: name,
+                data: value,
             })
-        } else {
-            dispatch({
-                type: HANDLE_COURSE_CHANGE,
-                payload: {name, value}
-            })
+        } catch(err) {
+            res = null;
+            alert("cannot make request to server!");
+            console.log(err);
         }
+        return res;
     }
     return (
         <courseContext.Provider
             value={{
                 ...state,
-                handleChange,
+                updateProperty,
                 getCourse,
                 getCategoriesWiseSub,
                 getSemestersWiseSub,
