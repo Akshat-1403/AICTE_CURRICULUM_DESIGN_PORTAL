@@ -92,7 +92,7 @@ export const CourseProvider = ({children})=>{
 
     const updateProperty = async (name, value, courseId)=>{
         let res = null;
-        const url = `courses/${courseId}/update-by-user`;
+        const url = `courses/${courseId}/update-by-user`
         try {
             res = await axiosInstance.patch(url, {
                 prop: name,

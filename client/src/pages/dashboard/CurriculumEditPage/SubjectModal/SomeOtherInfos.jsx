@@ -3,7 +3,7 @@ import { useSubjectContext } from "../../../../context";
 import { useParams } from "react-router-dom";
 import { Loading, SubjectMultiInput } from '../../../../components';
 
-export default function SubjectSyllabus() {
+export default function SomeOtherInfos() {
   const { getSubject, subject } = useSubjectContext();
   const { subject_common_id } = useParams();
 
@@ -29,22 +29,22 @@ export default function SubjectSyllabus() {
   }, [subject]);
 
   if(localLoading) {
-    return <Loading count={6} cardClassName="!h-12" />
+    return <Loading count={3} cardClassName="!h-12" />
   }
   return (
-    <div>
+    <>
       {
         data &&
-        Object.keys(data).map((propertyName)=>{
-          if(propertyName !== "modules") return null;
+        Object.keys(data).map((propertyName, index)=>{
+          if(["common_id", "id", "_id", "version", "title", "modules", "experiments", "referenceMaterial"].includes(propertyName)) return null;
           return (
-            <div className="flex flex-col items-center justify-center" key={propertyName}>
-              <h2 className='font-semibold text-lg mt-2'>Modules</h2>
-              <SubjectMultiInput name={propertyName} showName={false}/>
+            <div className="w-full" key={propertyName}>
+              <h1 className={`px-2 ${index===1 ? "mt-4" : "mt-2"} capitalize`}>{propertyName}</h1>
+              <SubjectMultiInput name={propertyName} />
             </div>
           )
         })
       }
-    </div>
+    </>
   )
 }
