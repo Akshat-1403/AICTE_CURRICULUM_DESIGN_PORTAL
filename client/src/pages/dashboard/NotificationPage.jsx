@@ -1,22 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Resource from "./ResourcesPage/Resources";
-// import AddResourceForm from "./ResourcesPage/AddResourceForm"
 import { Loading, SecondaryButton } from "./../../components";
 import axios from 'axios';
 import SearchImg from "./../../assets/Search.png"
 
 const NotificationPage = () => {
-  const [Array, setArray] = useState([]);
-  const [state, setState] = useState({
+  const [resources, setResources] = useState([]);
+  const [searchState, setSearchState] = useState({
     search: "",
     format: ""
-  })
-  const [loading, setLoading] = useState(false)
+  });
+  const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   const axiosInstance = axios.create({
     baseURL: "http://localhost:8080/api/v1/resources",
     withCredentials: true
-  })
+  });
 
   const searchFunc = async ({ search, format }) => {
     if (!search) search = "";
@@ -27,44 +27,48 @@ const NotificationPage = () => {
           search,
           type: format
         }
-      })
-      if (res.status >= 400) throw new Error(res.data.message)
-      setArray(res.data.data)
+      });
+      if (res.status >= 400) throw new Error(res.data.message);
+      setResources(res.data.data);
     } catch (err) {
-      window.alert(err.message)
+      window.alert(err.message);
     }
-  }
+  };
 
   useEffect(() => {
     setLoading(true);
     searchFunc({ search: "", format: "" })
-      .finally(() => setLoading(false))
+      .finally(() => setLoading(false));
     //eslint-disable-next-line
-  }, [])
+  }, []);
 
   const debounce = () => {
     let timeOutId;
     return (e) => {
       let stateTemp;
-      setState(prev => {
+      setSearchState(prev => {
         stateTemp = {
           ...prev,
           [e.target.name]: e.target.value
-        }
-        return stateTemp
+        };
+        return stateTemp;
       });
       clearTimeout(timeOutId);
       timeOutId = setTimeout(() => {
-        console.log(stateTemp)
+        console.log(stateTemp);
         searchFunc(stateTemp);
       }, 900);
-    }
-  }
-  const handleChange = useMemo(() => debounce(),
-    // eslint-disable-next-line
-    []);
+    };
+  };
 
-  if (loading) return <Loading count={5} cardClassName="!h-28" />
+  const handleChange = useMemo(() => debounce(), []);
+
+  // Function to send notification
+  const sendNotification = (message) => {
+    setNotifications(prevNotifications => [...prevNotifications, message]);
+  };
+
+  if (loading) return <Loading count={5} cardClassName="!h-28" />;
 
   return (
     <>
@@ -75,44 +79,34 @@ const NotificationPage = () => {
           <input
             type="text"
             name="search"
-            value={state.search}
+            value={searchState.search}
             onChange={handleChange}
             placeholder=" Search..."
             className="rounded focus:outline-none w-[28vw] h-8"
           />
         </div>
 
-        {/* Date Filter if aplicable */}
+        {/* Date Filter if applicable */}
         
-        {/* <div className="border-2 border-gray-400 bg-white h-fit flex rounded m-2 items-center">
-          <img src={SearchImg} alt="search" className="w-8 h-8" />
-          <select
-            name="format"
-            value={state.format}
-            onChange={handleChange}
-            className="rounded px-4 h-8 focus:outline-none"
-          >
-            <option value="Select format" className="text-base">Select format</option>
-            <option value="book" className="text-base">book</option>
-            <option value="video" className="text-base">video</option>
-            <option value="e-book" className="text-base">e-book</option>
-          </select>
-        </div> */}
-
         <SecondaryButton
-          onClick={()=>{}}
+          onClick={() => sendNotification("New notification message")}
           className=""
         >
           Send New Notification+
         </SecondaryButton>
       </div>
 
+      {/* Display Notifications */}
+      {notifications.map((notification, index) => (
+        <div key={index} className="notification">{notification}</div>
+      ))}
+
       {/* Resources List Section */}
-      {
-        Array.map((x, indx) => <Resource key={indx} resource={x} />)
-      }
+      {resources.map((resource, index) => (
+        <Resource key={index} resource={resource} />
+      ))}
     </>
-  )
-}
+  );
+};
 
 export default NotificationPage;

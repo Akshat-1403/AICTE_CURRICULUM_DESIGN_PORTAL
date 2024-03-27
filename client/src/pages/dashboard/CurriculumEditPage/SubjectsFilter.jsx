@@ -6,11 +6,14 @@
 import { useState } from "react"
 import { useCourseContext } from "../../../context";
 import Search from "../../../assets/Search.png";
-import { SecondaryButton } from "../../../components";
+import { SecondaryButton, AddSubject } from "../../../components";
+import { useParams } from "react-router-dom";
 
 export default function SubjectsFilter({localSubjects, setLocalSubjects}) {
-  const [search, setSearch] = useState("");
   const { subjects } = useCourseContext();
+  const { common_id } = useParams();
+  const [search, setSearch] = useState("");
+  const [showAddSubject, setShowAddSubject] = useState(false);
   
   if(!localSubjects || !setLocalSubjects) return <div>Error in filter</div>
 
@@ -19,8 +22,8 @@ export default function SubjectsFilter({localSubjects, setLocalSubjects}) {
     setLocalSubjects((prev)=>{
       if(subjects && subjects.cur && Array.isArray(subjects.cur)) {
         prev = subjects.cur.filter((item)=>{
-          if(!item || !item.cur || !item.cur.title || !item.cur.code) return false;
-          return re.test(item.cur.title) || re.test(item.cur.code)
+          // if(!item || !item.cur || !item.cur.title || !item.cur.code) return false;
+          return re.test(item?.cur?.title) || re.test(item?.cur?.code)
         })
       }
       return prev;
@@ -42,9 +45,29 @@ export default function SubjectsFilter({localSubjects, setLocalSubjects}) {
         />
       </div>
 
-      <SecondaryButton>
+      <SecondaryButton onClick={()=>{setShowAddSubject(true)}}>
         Add Subject
       </SecondaryButton>
+
+      {
+        showAddSubject && 
+        <AddSubject
+          id={common_id}
+          name="subjects"
+          inputFields={[
+            {type: "text", title: "code",}, 
+            {type: "text", title: "title",},
+            {type: "text", title: "category",},
+            {type: "number", title: "semester"},
+            {type: "number", title: "l",},
+            {type: "number", title: "t",},
+            {type: "number", title: "p",},
+            {type: "text", title: "credits",},
+            {type: "text", title: "weeklyHours",},
+          ]}
+          onClose={()=>setShowAddSubject(false)}
+        />
+      }
     </nav>
   )
 }

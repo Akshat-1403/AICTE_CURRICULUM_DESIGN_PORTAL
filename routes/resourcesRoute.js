@@ -10,6 +10,3 @@ router.route("/:id")
     .get(resourceContoller.getResourceById)
 
 module.exports = router;
-
-
-

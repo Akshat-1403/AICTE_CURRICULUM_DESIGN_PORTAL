@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require("bcrypt")
 const crypto = require('crypto')
+const { userRoleEnum, userGenderEnum, accessEnum } = require("./types")
 
 const userSchema = new mongoose.Schema({
     password:{
@@ -12,7 +13,7 @@ const userSchema = new mongoose.Schema({
     role:{
         type:String,
         require:[true,"type of User is missing"],
-        enum:["administrator","faculty","expert"]
+        enum:userRoleEnum,
     },
     name:{
         type:String,
@@ -25,7 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     gender:{
         type:String,
-        enum:["male","female","other"],
+        enum:userGenderEnum,
         // require:[true,"User's gender is Missing"]
     },
     dob:Date,
@@ -40,7 +41,7 @@ const userSchema = new mongoose.Schema({
             },
             access:{
                 type:String,
-                enum:["head","edit","view"]
+                enum:accessEnum,
             }
         },
         unique:[true, "user already enrolled"],
@@ -83,16 +84,10 @@ userSchema.pre(/^find/,async function (next){
 
 //middlewares
 userSchema.pre(/^find^/,function(next){
-    this.populate({
-        path:"adminIn",
-        select:"common_id title"
-    }).populate({
-        path:"editorIn",
-        select:"common_id title"
-    }).populate({
-        path:"viewerIn",
-        select:"common_id title"
-    })
+    // this.populate({
+    //     path:"courses.id",
+    //     select:"common_id title"
+    // })
     next()
 })
 
@@ -104,7 +99,7 @@ userSchema.pre("save",async function(next){
 })
 userSchema.pre("save",async function(next){
     if(!this.isModified("password") || this.isNew || this.preRegistered)return next()
-    this.passwordChangedAt = Date.now() - 1000
+    this.passwordChangedAt = Date.now() - 2000
     next()
 })
 

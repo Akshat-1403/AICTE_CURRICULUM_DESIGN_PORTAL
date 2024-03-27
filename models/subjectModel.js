@@ -1,37 +1,5 @@
 const mongoose = require('mongoose')
-
-const editableTypeWrapper = (obj)=>({
-    new:[{
-        by:{
-            type:mongoose.Types.ObjectId,
-            ref:'User'
-        },
-        value:obj,
-        _id:false
-    }],
-    cur:obj,
-    _id:false
-})
-const editableArrayWrapper = (arr)=>({
-    add:[{
-        by:{
-            type:mongoose.Types.ObjectId,
-            ref:'User'
-        },
-        // index:Number,
-        value:{type:arr[0].cur, _id:false},
-        _id:false
-    }],
-    del:[{
-        by:{
-            type:mongoose.Types.ObjectId,
-            ref:'User'
-        },
-        index:Number,
-        _id:false
-    }],
-    cur:arr
-})
+const {editableArrayWrapper, editableTypeWrapper} = require("./types")
 
 const subjectSchema = new mongoose.Schema({
     common_id:{
@@ -62,6 +30,33 @@ const subjectSchema = new mongoose.Schema({
         url:String
     })]),
     referenceMaterial:editableArrayWrapper([editableTypeWrapper(mongoose.SchemaTypes.ObjectId)]),
+    // referenceMaterial:{
+    //     add:[{
+    //         by:{
+    //             type:mongoose.Types.ObjectId,
+    //             ref:'User'
+    //         },
+    //         // index:Number,
+    //         value:{
+    //             type:mongoose.Types.ObjectId,
+    //             ref:'User',
+    //             _id:false
+    //         },
+    //         _id:false
+    //     }],
+    //     del:[{
+    //         by:{
+    //             type:mongoose.Types.ObjectId,
+    //             ref:'User'
+    //         },
+    //         index:Number,
+    //         _id:false
+    //     }],
+    //     cur:[{
+    //         type:mongoose.Types.ObjectId,
+    //         ref:'User',
+    //     }]
+    // },
     outcomes:editableArrayWrapper([editableTypeWrapper(String)]),
     // alternativeCourses:[]
 })
