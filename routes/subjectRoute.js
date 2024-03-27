@@ -7,12 +7,9 @@ const authController = require('../controllers/authController')
 router.route('/')
     .get(authController.protect,
         subjectController.getAllSubjects)
-    .post(authController.protect,
-        subjectController.postSubject)
-router.route('/:commonId')
-    .get(authController.protect, subjectController.getSubjectById)
-    
-router.get("/:commonId/referenceMaterial", authController.protect, subjectController.getReferenceMaterial)
+router.route('/:id')
+    .get(authController.protect,
+        subjectController.getSubjectById)
 router.route('/for-user')
     .post(authController.protect,
         subjectController.getSubjectForUser)

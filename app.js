@@ -58,10 +58,8 @@ const resourceRouter = require("./routes/resourcesRoute");
 const userRouter = require('./routes/userRoute')
 const authRouter = require('./routes/authRoute')
 const subjectRouter = require('./routes/subjectRoute')
-const notificationRouter = require('./routes/notificationRoute')
 
 const authController = require('./controllers/authController')
-
 
 // APIs
 app.use("/api/v1/feedback", feedbackRouter);
@@ -77,7 +75,6 @@ app.use('/api/v1/users',
     userRouter)
 app.use('/api/v1/auth',authRouter)
 app.use('/api/v1/subjects',subjectRouter)
-app.use('/api/v1/notifications', notificationRouter)
 
 app.all('*',(req,res,next)=>{
     throw new BAD_REQUEST("This route is Not defined")

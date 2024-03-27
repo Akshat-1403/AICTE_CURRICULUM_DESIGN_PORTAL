@@ -1,11 +1,37 @@
 const mongoose = require('mongoose')
-const { 
-    editableArrayWrapper,
-    editableTypeWrapper,
-    courseProgramEnum,
-    courseLevelEnum,
-    accessEnum 
-} = require("./types.js")
+
+const editableTypeWrapper = (obj)=>({
+    new:[{
+        by:{
+            type:mongoose.Types.ObjectId,
+            ref:'User'
+        },
+        value:obj,
+        _id:false
+    }],
+    cur:obj,
+    _id:false
+})
+const editableArrayWrapper = (arr)=>({
+    add:[{
+        by:{
+            type:mongoose.Types.ObjectId,
+            ref:'User'
+        },
+        // index:Number,
+        value:{type:arr[0].cur, _id:false},
+        _id:false
+    }],
+    del:[{
+        by:{
+            type:mongoose.Types.ObjectId,
+            ref:'User'
+        },
+        index:Number,
+        _id:false
+    }],
+    cur:arr
+})
 
 const courseSchema = new mongoose.Schema({
     common_id:{
@@ -24,14 +50,16 @@ const courseSchema = new mongoose.Schema({
     program:{
         type:editableTypeWrapper({
             type:String,
-            enum: courseProgramEnum,
+            enum:["Applied Arts and Crafts", "Architecture and Town Planning",
+                "Architecture", "Town Planning", "Engineering & Technology", 
+                "Hotel Management and Catering", "Management", "MCA", "Pharmacy"],
         }),
         require:[true,"program is missin"]
     },
     level:{
         type:editableTypeWrapper({
             type:String,
-            enum:courseLevelEnum,
+            enum:["undergraduate","postgraduate","diploma"]
         }),
         require:[true,"level is missin"]
     },
@@ -44,7 +72,7 @@ const courseSchema = new mongoose.Schema({
         educatorId:mongoose.SchemaTypes.ObjectId,
         role: {
             type: String,
-            enum: accessEnum,
+            enum: ['editor','admin'],
         }
     }],
     definitionOfCredits:editableArrayWrapper([editableTypeWrapper({
@@ -61,7 +89,7 @@ const courseSchema = new mongoose.Schema({
         common_id:mongoose.SchemaTypes.ObjectId,
         version:{
             type:Number,
-            // require:[true, "course's subject.common_id is missing"]
+            require:[true, "course's subject.common_id is missin"]
         },
         title:String,
         credits:Number,
