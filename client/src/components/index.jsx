@@ -1,4 +1,3 @@
-import AddSubject from "./AddSubject";
 import NavBar from "./NavBar";
 import SidebarList from "./SidebarList";
 import Sidebar from "./Sidebar";
@@ -9,18 +8,12 @@ import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 import NavButton from "./NavButton";
 import NavList from "./NavList";
-import NewAndDeletedSubjectsList from "./NewAndDeletedSubjectsList";
-import NewAndDeleteProperty from "./NewAndDeleteProperty";
-import {  
+import { 
     AddCourseInput, 
     CourseDropdown, 
-    CourseInput, 
     CourseMultiInput, 
-    CourseTextArea, 
-} from "./CourseInputComponents"; 
-import {
-    SubjectMultiInput, 
-} from "./SubjectInput"; 
+    CourseTextArea 
+} from "./CourseInputComponents"
 import Instructions from "./Instructions";
 import Table from "./Table";
 import CardWrapper from "./CardWrapper"
@@ -29,7 +22,6 @@ import Label from "./Label"
 import Modal from "./Modal";
 
 export {
-    AddSubject, 
     NavBar,
     SidebarList,
     Sidebar,
@@ -37,16 +29,12 @@ export {
     FilterSearch,
     FullPageLoading, 
     PrimaryButton,
-    SecondaryButton, 
-    SubjectMultiInput, 
+    SecondaryButton,
     NavButton,
-    NavList, 
-    NewAndDeletedSubjectsList, 
-    NewAndDeleteProperty, 
+    NavList,
     CourseMultiInput, 
-    CourseTextArea, 
-    CourseDropdown, 
-    CourseInput, 
+    CourseTextArea,
+    CourseDropdown,
     Label,
     AddCourseInput,
     Instructions,

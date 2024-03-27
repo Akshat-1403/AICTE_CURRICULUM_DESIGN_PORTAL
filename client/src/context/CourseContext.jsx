@@ -20,18 +20,6 @@ export const CourseProvider = ({children})=>{
         withCredentials:true
     });
 
-    axiosInstance.interceptors.response.use(
-        (response)=>{
-            return response;
-        }, (err)=>{
-            if(err.response.status >= 401){
-                // logoutUser();
-            }
-            err.message = err.response?.data?.message
-            return Promise.reject(err);
-        }
-    )
-
     const getCourse = async (courseId)=>{
         if(!courseId || courseId==="") return undefined;
         const url = `courses/${courseId}`;
@@ -41,7 +29,7 @@ export const CourseProvider = ({children})=>{
             if(response.status === 200) {
                 dispatch({
                     type: GET_COURSE,
-                    payload: {course: response?.data?.data}
+                    payload: {course: response.data.data}
                 });
             }
         } catch(err) {
@@ -104,7 +92,7 @@ export const CourseProvider = ({children})=>{
 
     const updateProperty = async (name, value, courseId)=>{
         let res = null;
-        const url = `courses/${courseId}/update-by-user`
+        const url = `courses/${courseId}/update-by-user`;
         try {
             res = await axiosInstance.patch(url, {
                 prop: name,
@@ -113,51 +101,6 @@ export const CourseProvider = ({children})=>{
         } catch(err) {
             res = null;
             alert("cannot make request to server!");
-            console.log(err);
-        }
-        return res;
-    }
-
-    const addProperty = async (name, value, courseId)=>{
-        let res = null;
-        try {
-            if(!name || !value || !value.cur || !courseId) 
-                throw new Error("BAD REQUEST. Please pass all the data!");
-
-            const url = `/courses/${courseId}/update-by-user`;
-
-            const res2 = await axiosInstance.post("/subjects", value?.cur)
-
-            value.cur.common_id = res2.data?.data?.common_id;
-            value.cur.version = res2.data?.data?.version;
-
-            res = await axiosInstance.patch(url, {
-                isnew: true,
-                prop: name,
-                data: value?.cur, 
-            });
-        } catch(err) {
-            res = null;
-            console.log(err); 
-            alert(err.message); 
-        }
-        return res;
-    }
-
-    const deleteProperty = async(prop, index, courseId)=>{
-        const url = `courses/${courseId}/update-by-user`;
-        let res = undefined;
-        try {
-            if(!prop || index===undefined || !courseId) 
-                throw new Error("Please provide all data!");
-
-            res = await axiosInstance.patch(url, {
-                prop: `${prop}.${index}`,  
-                del: true
-            });
-        } catch(err) {
-            res = null;
-            alert(err.message);
             console.log(err);
         }
         return res;
@@ -171,8 +114,7 @@ export const CourseProvider = ({children})=>{
                 getCategoriesWiseSub,
                 getSemestersWiseSub,
                 getAllSubjects,
-                addProperty, 
-                deleteProperty, 
+
             }}
         >
             {children}

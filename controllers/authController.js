@@ -137,10 +137,7 @@ module.exports.verifyByToken = async (req, res, next)=>{
         throw new UNAUTHORIZED_USER("Invalid Authentication!")
     }
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(payload.id).select("-_id").populate({
-            path:"courses.id",
-            select:"common_id title level program"
-        })
+    const user = await User.findById(payload.id).select("-_id")
 
     if(!user || payload.role!==user.role)
     throw new UNAUTHORIZED_USER("")
@@ -181,13 +178,13 @@ module.exports.protect = async (req, res, next)=>{
     const decoded = await util.promisify(jwt.verify)(token,process.env.JWT_SECRET)
 
     //Checking that user still exists.
-    const freshUser = await User.findById(decoded.id)
+    const freshUser = await User.findById(decoded.id);
     if(!freshUser)
         return next(new UNAUTHORIZED_USER('User belonging to token no longer exits'));
     
     //Check if user changed password after token was issued
     if(freshUser.isPasswordChangedAfter(decoded.iat)){
-        return next(new UNAUTHORIZED_USER('User recently changed password! please log in again'))
+        next(new UNAUTHORIZED_USER('User recently changed password! please log in again'))
     }
 
     req.user = freshUser; // May be used in future
@@ -195,13 +192,10 @@ module.exports.protect = async (req, res, next)=>{
 }
 
 module.exports.restrictTo = function(...roles){
-    if(!roles.every(el=>["administrator","faculty","expert"].includes(el))){
-        throw new Error("Operationl Erorr - Invalid roles");
-    }
-
-    return (req, res, next)=>{        
+    return (req, res, next)=>{
+        
         if(!req.user || !roles.includes(req.user.role)){
-            return next(new CustomAPIError("You don't have acess to performe this action\nFORBIDDEN", 403))
+            next(new CustomAPIError("You don't have acess to performe this action\nFORBIDDEN", 403))
         }
         next();
     }
@@ -209,7 +203,7 @@ module.exports.restrictTo = function(...roles){
 
 module.exports.updatePassword = async function (req,res, next){
     //Checking user
-    const user = await User.findOne({email:req.user.email}).select('+password')
+    const user = User.findById(req.user.id).select('+password')
     //Cofirming the current Password
     const match = await user.checkPassword(req.body.currentPassword, user.password)
     if(!match){
@@ -217,14 +211,15 @@ module.exports.updatePassword = async function (req,res, next){
     }
     //updating the user
     user.password = req.body.newPassword
+    user.passwordConfirm = req.body.newPasswordConfirm
     await user.save()
 
     //loging in user with new password and send response
     const token = createJWT(user)
     
     const resUser = {
-        ...user,
-        password:undefined
+        name:user.name,
+        email:user.email
     }
     sendRes(res,200,token,resUser)
 }

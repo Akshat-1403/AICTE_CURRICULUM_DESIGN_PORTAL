@@ -1,11 +1,9 @@
 import { Outlet, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  AddSubject, 
   CardWrapper,
   Table, 
-  Loading,
-  SecondaryButton, 
+  Loading, 
 } from "../../../components"
 import { useCourseContext } from "../../../context";
 
@@ -14,11 +12,9 @@ export default function CategoriesPage() {
   const {common_id} = useParams();
   const { getCategoriesWiseSub } = useCourseContext();
 
-  const keyOrder = ["code", "title", "semester", "l", "t", "p", "credits"];
   const [categories, setCategories] = useState({});
+  const keyOrder = ["code", "title", "semester", "l", "t", "p", "credits"];
   const [localLoading, setLocalLoading] = useState(true);
-  const [showAddStudent, setShowAddStudent] = useState(()=>false);
-  const [newSubjectCategory, setNewSubjectCategory] = useState(undefined);
 
   useEffect(()=>{
     getCategoriesWiseSub(common_id)
@@ -37,7 +33,6 @@ export default function CategoriesPage() {
   // eslint-disable-next-line
   },[])
 
-
   if(localLoading) {
     return (
       <>
@@ -48,8 +43,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div>
-      <div>
+    <>
       {
         Object.keys(categories || {})?.map((category, index)=>{
           const totalCredits = categories[category].reduce(
@@ -62,14 +56,14 @@ export default function CategoriesPage() {
 
           return (
             <CardWrapper classNames="m-8 p-6 pt-2" key={index}>
-              <header className="mx-2 flex justify-between items-center text-gray-900">
-                <h1 className="inline text-base">
-                  {`${index + 1}`}
+              <header className="mx-2 flex justify-between">
+                <h1 className="inline text-3xl">
+                  {`${index + 1}.`}
                 </h1>
-                <h1 className="inline text-2xl font-semibold">
+                <h1 className="inline text-xl">
                   {category || "-----"}
                 </h1>
-                <h1 className="inline text-base">
+                <h1 className="inline text-lg">
                   {`Credits-${totalCredits}`}
                 </h1>
               </header>
@@ -79,46 +73,14 @@ export default function CategoriesPage() {
               <Table
                 data={categories[category] || []}
                 keys={keyOrder}
-                setLoading={setLocalLoading}
               />
-
-
-              <div className="mt-5 w-full flex justify-end items-center gap-4">
-                <SecondaryButton onClick={()=>{setShowAddStudent(true); setNewSubjectCategory(category)}} className="mr-1 p-2 bg-secondary-500">
-                  Add Subject
-                </SecondaryButton>
-              </div>
             </CardWrapper>
           )
         })
       }
-      </div>
-      <div>        
-        {
-          showAddStudent && 
-          <>
-          <h1>Hello World</h1>
-          <AddSubject 
-            id={common_id}
-            name="subjects"
-            onClose={()=>setShowAddStudent(false)}
-            inputFields={[
-              {type: "text", title: "code",}, 
-              {type: "text", title: "title",},
-              {type: "text", title: "category", defaultValue: newSubjectCategory},
-              {type: "number", title: "semester",},
-              {type: "number", title: "l",},
-              {type: "number", title: "t",},
-              {type: "number", title: "p",},
-              {type: "text", title: "credits",},
-              {type: "text", title: "weeklyHours",},
-            ]}
-          />
-          </>
-        }
-      </div>
+
       {/* Subject Modal */}
       <Outlet />
-    </div>
+    </>
   )
 }

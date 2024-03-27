@@ -28,7 +28,6 @@ export const UserProvider = ({children})=>{
             if(err.response.status >= 401){
                 // logoutUser();
             }
-            err.message = err.response?.data?.message
             return Promise.reject(err);
         }
     )
@@ -39,9 +38,10 @@ export const UserProvider = ({children})=>{
             const res = await axiosInstance.get("/auth/verify-token",{
                 withCredentials:true
             })
+            const {user} = res.data;
             dispatch({
                 type: SETUP_USER,
-                payload: res.data.user,
+                payload: user,
             })
         }
         catch(err){
@@ -62,7 +62,10 @@ export const UserProvider = ({children})=>{
             const response = await axiosInstance.post(`auth/login/`, {email, password},{withCredentials:true})
             dispatch({
                 type: SETUP_USER,
-                payload: response.data.user
+                payload: {
+                    name:response.data.user.name,
+                    email:response.data.user.email
+                }
             })
         } catch(err) {
             dispatch({
@@ -90,82 +93,44 @@ export const UserProvider = ({children})=>{
         }
     }
 
+    const setupAdminPassword = async ({name, password})=>{
+        setLoading(true);
+        try{
+            await axiosInstance("auth/set-up-admin", {name, password});
+            dispatch({
+                type: SETUP_USER,
+                payload: {
+                    ...state,
+                    user: {
+                        ...state.user,
+                        name,
+                        password,
+                    }
+                }
+            })
+        } catch(err) {
+            dispatch({
+                type:ALERT,
+                payload:"Cannot set up details"
+            })
+        }
+    }
+
     const verifyAdminOTPAndRegister = async ({name, password, email, otp})=>{
         setLoading(true);
         try {
-            const res = await axiosInstance.post("/auth/register-admin", {
+            await axiosInstance.post("/auth/register-admin", {
                 name, email,password, otp
             },{withCredentials:true})
 
             dispatch({
                 type: SETUP_USER,
-                payload: res.data.user,
+                payload: {name,email},
             });
         } catch(err) {
             dispatch({
                 type:ALERT,
                 payload:"Error while verifying OTP"
-            })
-        }finally{
-            setLoading(false)
-        }
-    }
-
-    const registerDev = async ({name, password, email})=>{
-        setLoading(true);
-        try {
-            const res = await axiosInstance.post("/auth/register-user", {
-                name, email,password
-            },{withCredentials:true})
-
-            dispatch({
-                type: SETUP_USER,
-                payload: res.data.user,
-            });
-        } catch(err) {
-            dispatch({
-                type:ALERT,
-                payload:"Error in register"
-            })
-        }finally{
-            setLoading(false)
-        }
-    }
-
-    const updateUserProfile = async (user)=>{
-        setLoading(true);
-        try {
-            await axiosInstance.patch("/users/", user,
-            {withCredentials:true})
-
-            dispatch({
-                type: ALERT,
-                payload: "refresh to update user",
-            });
-        } catch(err) {
-            // console.log(err)
-            dispatch({
-                type:ALERT,
-                payload:err.message
-            })
-        }finally{
-            setLoading(false)
-        }
-    }
-    
-    const updatePassword = async (currentPassword, newPassword)=>{
-        setLoading(true);
-        try {
-            await axiosInstance.patch("/auth/update-password",
-                {currentPassword, newPassword},
-                {withCredentials:true}
-            )
-
-            await logout();
-        } catch(err) {
-            dispatch({
-                type:ALERT,
-                payload:err.message
             })
         }finally{
             setLoading(false)
@@ -229,12 +194,10 @@ export const UserProvider = ({children})=>{
                 setLoading,
                 login,
                 sendAdminOTP,
-                updatePassword,
+                setupAdminPassword,
                 verifyAdminOTPAndRegister,
-                registerDev,
                 logout,
                 createUser,
-                updateUserProfile,
                 getCurrUser,
             }}
         >
