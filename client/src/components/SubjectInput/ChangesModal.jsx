@@ -6,7 +6,7 @@ export default function ChangesModal({ name, index, onClose }) {
 
   if(propertyValue === undefined || !propertyValue.cur) return <div>Some Error</div>;
   if(index!==undefined && index!=="" && Array.isArray(propertyValue.cur) && index*1 < propertyValue.cur.length)  {
-    propertyValue = propertyValue.cur[index];
+    propertyValue = propertyValue.cur[index*1];
   }
   
   return ( 
@@ -37,14 +37,14 @@ export default function ChangesModal({ name, index, onClose }) {
               propertyValue.new.map((item, ind)=> 
               {  
                 if(name === "modules") return (
-                  <div>
+                  <div key={ind}>
                     <Module module={item?.value} />
                     <p className="text-gray-500 text-sm">by: {item?.by}</p>
                   </div>
                 );
                 return  (                  
                   <div className="mb-4 flex flex-col gap-1 items-end" key={ind}>
-                    <div className="max-h-56 w-full px-1.5 py-1 border border-black bg-white rounded-md overflow-y-auto">
+                    <div className={`max-h-56 w-full px-1.5 py-1 border border-black ${item?.value==="deleted" ? "bg-red-500 text-white text-center capitalize" : "bg-white"} rounded-md overflow-y-auto`} > 
                       <p>{item?.value}</p>
                     </div>
                     <p className="text-gray-500 text-sm">by: {item?.by}</p>
@@ -103,7 +103,7 @@ function Module({module}) {
               module.topics.map((topic, ind) => 
                 <input 
                   key={ind}
-                  value={module.topics[ind]}
+                  defaultValue={module.topics[ind]}
                   className="px-2 py-1 outline-none border-2 border-gray-300 w-full rounded"
                 />
               )
